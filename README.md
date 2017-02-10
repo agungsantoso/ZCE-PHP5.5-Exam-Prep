@@ -1,6 +1,9 @@
 # Security
+
 ## Configuration
+
 Always keep up to date, unless you have very strong reason.
+
 1.	Errors and warnings
     * Production:
     ```
@@ -29,7 +32,9 @@ Always keep up to date, unless you have very strong reason.
     * `cgi.force_redirect` make php can’t be accessed directly from url
     * `doc_root`
     * `user_dir`
+
 ## Session Security
+
 1.	Session Hijacking
     * an attacker gets a hold of a session identifier and is able to send requests as if they were that user.
     * To prevent, set below directive to `On`
@@ -46,5 +51,7 @@ Always keep up to date, unless you have very strong reason.
     * check IP address, remains same between calls
     * use short seesion timeout, reduce window fixation
     * provide logout that calls session_destroy
+
 ## Cross-Site Scripting
+
 An attack where malcious code is injected onto an otherwise benign site

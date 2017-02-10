@@ -1,12 +1,14 @@
-# TOC
+# ZCE PHP 5.5 Exam Prep
+
+## TOC
 - [Security](#security)
     - [Configuration](#configuration)
     - [Session Security](#session-security)
     - [Cross-Site Scripting](#cross-site-scripting)
 
-# Security
+## Security
 
-## Configuration
+### Configuration
 
 Always keep up to date, unless you have very strong reason.
 
@@ -39,7 +41,7 @@ Always keep up to date, unless you have very strong reason.
     * `doc_root`
     * `user_dir`
 
-## Session Security
+### Session Security
 
 1.	Session Hijacking
     * an attacker gets a hold of a session identifier and is able to send requests as if they were that user.
@@ -58,6 +60,6 @@ Always keep up to date, unless you have very strong reason.
     * use short seesion timeout, reduce window fixation
     * provide logout that calls session_destroy
 
-## Cross-Site Scripting
+### Cross-Site Scripting
 
 An attack where malcious code is injected onto an otherwise benign site

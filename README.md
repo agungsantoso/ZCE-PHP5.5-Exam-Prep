@@ -1,19 +1,23 @@
-# ZCE PHP 5.5 Exam Prep
+v
+<!-- TOC -->
 
-## TOC
 - [Object-Oriented Programming](#object-oriented-programming)
-    - [Instantiation](#instantiation)
-    - [Modifiers/Inheritance](#modifiers/inheritance)
+    - [Declaring Classes and Instantiating Objects](#declaring-classes-and-instantiating-objects)
+    - [Visibility or Access Modifiers](#visibility-or-access-modifiers)
+    - [Instance Properties and Methods](#instance-properties-and-methods)
+    - [Static Methods and Properties](#static-methods-and-properties)
+    - [Working with Objects](#working-with-objects)
+    - [Constructors and Destructors](#constructors-and-destructors)
+    - [Inheritance](#inheritance)
     - [Interfaces](#interfaces)
     - [Exceptions](#exceptions)
-    - [Autoload](#autoload)
     - [Reflection](#reflection)
     - [Type Hinting](#type-hinting)
     - [Class Constants](#class-constants)
     - [Late Static Binding](#late-static-binding)
-    - [Magic (_*) Methods](#magic-(_*)-methods)
-    - [Instance Methods & Properties](#instance-methods-&-properties)
-    - [SPL](#spl)
+    - [Magic (_*) Methods](#magic-_-methods)
+    - [Standard PHP Library (SPL)](#standard-php-library-spl)
+    - [Generators](#generators)
     - [Traits](#traits)
 - [Security](#security)
     - [Configuration](#configuration)
@@ -25,50 +29,425 @@
     - [Email Injection](#email-injection)
     - [Filter Input](#filter-input)
     - [Escape Output](#escape-output)
-    - [Encryption, Hashing algorithms](#encryption,-hashing-algorithms)
+    - [Encryption, Hashing algorithms](#encryption-hashing-algorithms)
     - [File Uploads](#file-uploads)
     - [Database Storage](#database-storage)
     - [Avoid Publishing Your Password Online](#avoid-publishing-your-password-online)
 
+<!-- /TOC -->
+
 ## Object-Oriented Programming
 
-### Instantiation
+### Declaring Classes and Instantiating Objects
 
+Class declared using `class` keyword
 
-### Modifiers/Inheritance
+```php 
+<?php 
+class ExampleClass
+{
+    // class code
+}
+```
 
+Class instatiate using `new` keyword
+
+```php 
+<?php 
+$exampleObject = new ExampleClass();
+```
+
+1. Autoloading Classes  
+    * Autoloading is accomplished using `spl_auto_register()` function
+
+    ```php 
+    <?php 
+    function my_autoloader($class) {
+        include 'classes/' .  $class . '.class.php';
+    }
+
+    spl_autoload_register('my_autoloader');
+
+    // Or using anonymous function as of PHP 5.3.0
+    spl_auto_register(function($class) {
+        include 'classes/' . $class . '.class.php';
+    })
+    ```
+
+    * If unable to find after autoload function then PHP will throw Fatal Error
+
+### Visibility or Access Modifiers 
+
+* `public` means can be accessed from everywhere 
+* `protected` can be accessed form within the class and it's children 
+* `private` can be accessed form within the class itself
+* if don't explicitly specified it will default to `public`
+
+### Instance Properties and Methods 
+
+1. Properties  
+Declared using modifiers followed by the name of the property
+
+```php 
+<?php 
+class Property 
+{
+    public $email;
+    protected $name = 'Alice';
+    private $balance = 60 * 5;
+}
+```
+
+2. Methods  
+Declared using modifier followed by function declaration.  
+Default to public if not explicitly specified.
+
+```php 
+<?php 
+class MethodExample 
+{
+    private $name;
+
+    public function setName($name) {
+        $this->name = $name;
+    }
+}
+```
+Non static object can be accesed using `$this` pseudo-variable
+
+### Static Methods and Properties 
+Declaring method or property as static make it available without needing a concrete implementation of the class.
+
+```php 
+<?php 
+class MyClass
+{
+    public static function sayHello() {
+        echo "Hello World" . PHP_EOL;
+    }
+
+    public function someFunction() {
+        self::sayHello();
+    }
+    MyClass::sayHello(); // Hello World
+    $object = new MyClass();
+    $object->someFunction(); // Hello World
+}
+```
+
+### Working with Objects 
+
+1. Copying Objects   
+    * Objects always passed by reference to copy object use `clone` keyword 
+
+    ```php 
+    <?php 
+    $objectCopy = clone $originalObject;
+    ```
+    * Using `clone` php will create _shallow copy_ not _deep copy_.  
+    * When cloning php will call `__clone()` method in the object.
+
+2. Serializing Objects  
+    * Accomplished with `serialize()` and `unserialize()` functions.  
+    * When object serialized it will call `__sleep()`, when object unserialized it will call `__wakeup()`
+    * Resource and outside reference won't be serialized, but circular reference inside object will be retained
+    * When unserialize, the object must have the class declared, if not it will create `__PHP_Incomplete_Class_Name` which has no method 
+3. Casting Objects to String 
+    * declare `__toString()` method, if not it will generate catchable fatal error
+
+### Constructors and Destructors
+
+Constructor is method that is run when an object is instantiated from the class. Destructor is when unloaded.
+In _PHP 4_ constructor has same name with class.
+
+1. Constructor parameters  
+If Constructor has parameter you must pass it when instantiating
+
+### Inheritance 
+
+If you extend class, the child will inherit all public properties and method of the parent class.
+
+1. The "Final" Keyword
+* Can be appllied to class or method to prevent class being extended and method being overrideen
+* java `final` is `const` in PHP
+2. Overriding
+* If you override, parent method won't be called
+* class child can't have lower visibility than parent
 
 ### Interfaces
 
+* Use to specify what method a class must implement 
+* class can't implement many interface (separated by comma) but can only extend one class
 
 ### Exceptions
 
+Standard Exception Type:
+* `Exception` implements `Throwable`
+    * `ErrorException` extends `Exception`
+* `Error` implements `Throwable`
+    * `ArithmeticError`
+        * `DivisionByZeroError`
+    * `AssertionError`
+    * `ParseError`
+    * `TypeError`
 
-### Autoload
+SPL Exception:
+* `LogicException` extends `Exception`
+    * `BadFunctionCallException`
+        * `BadMethodCallException`
+    * `DomainException`
+    * `InvalidArgumentException`
+    * `LengthException`
+    * `OutOfRangeException`
+* `RuntimeException` extends `Exception`
+    * `OutOfBoundsException`
+    * `OverflowException`
+    * `RangeException`
+    * `UnderflowException` 
+    * `UnexpectedValueException`
 
+```php 
+<?php 
+class ParentException extends Exception {}
+class ChildException extends ParentException {}
+
+try {
+    throw ChildException('My Message');
+} catch(ParentException $e) {
+    echo "Parent Exception:" . $e->getMessage();
+} catch(ChildException $e) {
+    echo "Child Exception:" . $e->getMessage();
+} catch(Exception $e) {
+    echo "Exception:" . $e->getMessage();
+}
+```
+
+1. Extending Exception Classes 
+* Only class that inherits from the Base Exception can be used with `throw` keyword
+* A `try` block must have at least one `catch` block
+2. Finally
+* `finally` keyword used to denote a code block that will __always executed__
 
 ### Reflection
 
+Allow the ability to inspect elements at runtime and retreive information about them. Usually used in unit testing, to test private properties.  
+Several reflection classes:
+* `ReflectionClass`
+* `ReflectionObject`
+* `ReflectionMethod`
+* `ReflectionFunction`
+* `ReflectionProperty`
+
+```php 
+<?php 
+$reflectionObject = new ReflectionClass('Exception');
+print_r($reflectionObject->getMethods());
+```
 
 ### Type Hinting
 
+Specify variable type that a parameter to a function is expected to be.  
+If wrong parameter type passed:
+* In PHP5: recoverable Fatal Error 
+* In PHP7: TypeErrorException
+Type hints:
+* In PHP5: composite type and callables
+* In PHP7: scalar type variable
+If class used as type hint, all its children and implementations wil valid
 
 ### Class Constants
 
+Constant is value that is immutable
 
-### Late Static Binding
+```php 
+<?php 
+class MathsHelper
+{
+    const PI = 4;
 
+    public function squareTheCircle($radius) {
+        return $radius * (self::PI ** 2);
+    }
 
-### Magic (_*) Methods
+    echo MathsHelper::PI;
+}
+```
 
+* Class constants all _public_ and accesible from all scopes
+* Class constants accesed using scope resolution operator (`::`)
+* Class Constants may only contain _scalar_ value
 
-### Instance Methods & Properties
+### Late Static Binding 
 
+Method to reference the _called class_ (not the _calling class_) in the context of _static inheritance_. Rather than creating new _reserved word_, the decision was made to use `static` keyword.
 
-### SPL
+1. Forwarding Calls
+* is a static call that is introduced by `parent::`, `static::` or `forward_static_call()`
+* `self::` can also be forwarding calls if the class _falls back_ to _inherited_ class because it doesn't have the method
 
+### Magic (_*) Methods 
 
-### Traits
+1. `__get` and `__set`  
+    called when trying to read (get) or write (set) inaccessible properties
+2. `__isset` and `__unset`  
+    triggered by calling `isset()`,`empty()` or `unset()`
+3. `__call` and `__callStatic`  
+    called when trying to call non-existing method on an object
+4. `__invoke`  
+    called when trying to execute object as function
+5. `__debugInfo`  
+    called by `var_dump()` when dumping object
+6. More magic functions  
+    `__construct()`, `destruct()`  
+    `__sleep()`, `__wake()`  
+    `__clone()`, `__toString()` 
+
+### Standard PHP Library (SPL)
+
+Collection of classes and interfaces that are recipes for solving common programming problems.
+
+| Categories | Used for |
+|:-----------|:---------|
+| Data Structures | Standard data structures |
+| Iterators | |
+| Exceptions | |
+| File Handling | |
+| ArrayObject | Accessing object with array functions |
+| SplObserver and SplObject | Implementing the observer pattern | 
+
+### Generators
+
+Provide easy way to create iterator object.  
+Saves processing time and memories.  
+Use empty `return` statement to terminate the generator.
+
+1. Yield keyword  
+    Used to yield value back while pausing executon
+
+2. Yielding with keys  
+```php
+<?php
+function myGenerator() {
+    yield $key => $value;
+} 
+```
+if key not explicitly yield, PHP will pair yielded value with increasing sequential keys
+
+3. Yielding `NULL`  
+    yield without argument causes it to yield `NULL` value with increasing sequential key 
+    
+4. Yielding by Reference  
+```php 
+<?__PHP_Incomplete_Class_Name
+function &referenceGenerator() {
+    yield $value;
+}
+```
+
+### Traits  
+
+Created to alleviate some of limitations of a single inheritance language.
+
+1. Declaring and Using Traits  
+    Use `trait` to declare a trait and `use` to include it in a class. A class may use multiple traits.
+```php 
+<?php 
+trait Singleton
+{
+    private static $instance;
+
+    public static function getInstance() {
+        if(!(self::instance instanceof self)) {
+            self::instance = new self;
+        }
+        return self::instance;
+    }
+
+    class UsingTraitExample
+    {
+        use Singleton;
+    }
+
+    $object = UsingTraitExample::getInstance();
+    var_dump($object instanceof UsingTraitExample); // true
+
+    exit;
+}
+```
+2. Namespacing Traits   
+    PHP will generate fatal error if traits have conflicting name, use namespace to avoid this.  
+    
+3. Inheritance and Precedence  
+    * Trait can be used inside another.  
+    * Method declared _in a class_ override __method__ in _trait_, however method in _trait_ override __method__ _inherited_.
+    * Precedence in traits:  
+        CLASS MEMBERS > TRAIT METHODS > INHERITED METHODS
+
+4. Confilict Resolution  
+    PHP will generate fatal error if two traits attempts to insert a method with the __same name__
+    * use `insteadof` to specify with method to use 
+    * use `as` to alias method
+    
+```php 
+<?php 
+trait Dog
+{
+    public function makeNoise() {
+        echo "Woof";
+    }
+
+    public function wantWalkies() {
+        echo "Yes please!";
+    }
+}
+
+trait Cat 
+{
+    public function makeNoise() {
+        echo "Purr";
+    }
+
+    public function wantWalkies() {
+        echo "No thanks!";
+    }
+}
+
+class DomesticPet
+{
+    use Dog, Cat {
+        Cat::makeNoise insteadof Dog;
+        Cat::wantWalkies as kittyWalk;
+        Dog::wantWalkies insteadof Cat;
+    }
+}
+
+$obj = new DomesticPet();
+$obj->makeNoise(); // Purr 
+$obj->wantWalkies(); // Yes please!
+$obj->kittyWalk(); // No thanks!
+```
+
+5. Visibility  
+    Applay visibility modifier to functions by extending `use` keyword    
+```php 
+<?php 
+trait Example
+{
+    public function myFuntion() {
+        
+    }
+}
+
+class VisibilityExample
+{
+    use Example {
+        myFunction as protected;
+    }
+}
+
+$obj = new VisibilityExample();
+$obj->myFunction(); // PHP Fatal Error: Call to protected method
+```
 
 
 
